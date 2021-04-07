@@ -63,23 +63,6 @@ public class RegisterMod {
 		List<String> wrongmodnames = checkIfAllJarsExist();
 		if (wrongmodnames.size() > 0) {
 			if (processPreJoinWorldCheck(world)) {
-				String s = "";
-				if (wrongmodnames.size() > 1) {
-					s = "s";
-				}
-				
-				String projecturl = "https://curseforge.com/members/serilum/projects";
-				StringFunctions.sendMessage(player, "Mod" + s + " from incorrect sources:", TextFormatting.RED, projecturl);
-				for (String wrongmodname : wrongmodnames) {
-					StringFunctions.sendMessage(player, " " + wrongmodname, TextFormatting.YELLOW, projecturl);
-				}
-				
-				StringFunctions.sendMessage(player, "You are receiving this message because you are using some of Serilum's mods, but probably haven't downloaded them from the original source. Unofficial sources can contain malicious software, supply no income for developers and host outdated versions.", TextFormatting.RED, projecturl);
-				StringFunctions.sendMessage(player, "Serilum's mod downloads are only officially available at:", TextFormatting.DARK_GREEN, projecturl);
-				StringFunctions.sendMessage(player, " https://curseforge.com/members/serilum/projects (click)", TextFormatting.YELLOW, projecturl);
-				StringFunctions.sendMessage(player, "You won't see this message again in this instance. Thank you for reading.", TextFormatting.DARK_GREEN, projecturl);
-				StringFunctions.sendMessage(player, "-Rick (Serilum)", TextFormatting.YELLOW, projecturl);
-				
 				processPostJoinWorldCheck(world);
 			}
 		}
