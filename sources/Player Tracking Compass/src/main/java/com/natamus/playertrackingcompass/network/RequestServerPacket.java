@@ -46,15 +46,18 @@ public class RequestServerPacket {
 
       ServerPlayerEntity serverplayer = ctx.get().getSender();
       BlockPos serverplayerpos = serverplayer.getPosition();
-      BlockPos comparepp = new BlockPos(serverplayerpos.getX(), 1, serverplayerpos.getZ());
+      BlockPos comparepp = new BlockPos(serverplayerpos.getX(), serverplayerpos.getY(), serverplayerpos.getZ());
 
       ServerPlayerEntity closestplayer = null;
-      double closestdistance = 999999999999.0;
+      double closestdistance = Double.MAX_VALUE;
 
       ServerWorld world = serverplayer.getServerWorld();
       for (ServerPlayerEntity oplayer : world.getPlayers()) {
+        if (oplayer.getUniqueID().equals(serverplayer.getUniqueID())) {
+          continue;
+        }
         BlockPos oplayerpos = oplayer.getPosition();
-        BlockPos compareop = new BlockPos(oplayerpos.getX(), 1, oplayerpos.getZ());
+        BlockPos compareop = new BlockPos(oplayerpos.getX(), oplayerpos.getY(), oplayerpos.getZ());
 
         double distance = comparepp.manhattanDistance(compareop);
         if (distance < closestdistance) {
@@ -63,7 +66,7 @@ public class RequestServerPacket {
         }
       }
 
-      if (closestplayer != null && closestplayer != serverplayer) {
+      if (closestplayer != null) {
         targetpos = closestplayer.getPosition().toImmutable();
         serverplayer.sendStatusMessage(
             new StringTextComponent("Tracking " + closestplayer.getName().getString()).mergeStyle(TextFormatting.GREEN), true);

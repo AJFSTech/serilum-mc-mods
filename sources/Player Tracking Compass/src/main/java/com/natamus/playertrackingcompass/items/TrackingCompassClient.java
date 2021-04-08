@@ -14,6 +14,8 @@
 
 package com.natamus.playertrackingcompass.items;
 
+import com.natamus.collective.functions.StringFunctions;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
@@ -24,9 +26,13 @@ import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -68,40 +74,11 @@ public class TrackingCompassClient implements IItemPropertyGetter {
 		if (CompassVariables.trackingTarget == null) {
 			return 0;
 		}
-		double angle;
 
-		double entityAngle = isLiving ? entity.rotationYaw : getFrameAngle((ItemFrameEntity) entity);
-		entityAngle /= 360.0D;
-		entityAngle = MathHelper.positiveModulo(entityAngle, 1.0D);
-		double posAngle = getPosToAngle(CompassVariables.trackingTarget, entity);
-		posAngle /= Math.PI * 2D;
-		angle = 0.5D - (entityAngle - 0.25D - posAngle);
-
-		if (isLiving) {
-			angle = wobble(world, angle);
-		}
-
-		return MathHelper.positiveModulo((float) angle, 1.0F);
-	}
-
-	/**
-	 * Adds wobbliness based on the previous angle and the specified angle
-	 *
-	 * @param world The world
-	 * @param angle The current angle
-	 * @return The new, wobbly angle
-	 */
-	private double wobble(World world, double angle) {
-		long worldTime = world.getGameTime();
-		if (worldTime != prevWorldTime) {
-			prevWorldTime = worldTime;
-			double angleDifference = angle - prevAngle;
-			angleDifference = MathHelper.positiveModulo(angleDifference + 0.5D, 1.0D) - 0.5D;
-			prevWobble += angleDifference * 0.1D;
-			prevWobble *= 0.8D;
-			prevAngle = MathHelper.positiveModulo(prevAngle + prevWobble, 1.0D);
-		}
-		return prevAngle;
+		double d1 = entity.rotationYaw;
+		d1 = MathHelper.positiveModulo(d1 / 360.0D, 1.0D);
+		double d2 = this.getSpawnToAngle(world, entity, stack) / (Math.PI * 2D);
+		return MathHelper.positiveModulo((float)  (0.5D - (d1 - 0.25D - d2)), 1.0F);
 	}
 
 	/**
@@ -123,5 +100,11 @@ public class TrackingCompassClient implements IItemPropertyGetter {
 	 */
 	private double getPosToAngle(int[] pos, Entity entity) {
 		return Math.atan2(pos[2] - entity.getPosZ(), pos[0] - entity.getPosX());
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	private double getSpawnToAngle(World world, Entity entity, ItemStack stack) {
+		return Math.atan2((double) CompassVariables.trackingTarget[2] - entity.getPosZ(),
+				(double) CompassVariables.trackingTarget[0] - entity.getPosX());
 	}
 }
